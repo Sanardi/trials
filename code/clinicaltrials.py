@@ -1,5 +1,5 @@
 #author: Marzia Catherine Azam
-
+import numpy as np
 import pandas as pd
 import json
 
@@ -43,7 +43,7 @@ class ClinicalTrials:
         df_drug_trials['matches'] = df_drug_trials['intervention_name']
         words_to_remove = ["and", "intravenous", "+", "- ", "/", r"\(.*\)", "®", " or"]
         for item in words_to_remove:
-            df_drug_trials['matches'] = df_drug_trials['matches'].str.replace(item,",", regex=False)
+            df_drug_trials['matches'] = df_drug_trials['matches'].str.replace(item,",")
 
         df_drug_trials['matches'] = df_drug_trials['matches'].str.lower().str.split(',')
         return df_drug_trials
@@ -64,21 +64,74 @@ class ClinicalTrials:
                     continue
         return match
 
-    def match_trials_with_drugs(self,):
+    def match_trials_with_drugs(self):
         df = self.clean_df_trials()
         df_drugs = self.prepare_drugs_file()
         df['drugs'] = df['matches'].apply(self._match_drugs, df=df_drugs)
         df = df[df['drugs'] != ""]
+        return df
+
+    def output_task1(self):
+        #outputs the requested json
+        df = self.match_trials_with_drugs()
         df_output = df[['nct_id', 'drugs']]
         json_output = df_output.to_json(orient="records")
         parsed = json.loads(json_output)
-        #json_output = json.dump(parsed, "task1.json") 
         with open("task1.json", "w") as outfile: 
             json.dump(parsed, outfile)
         return parsed
+
+    def match_drugs_to_usan_descriptions(self):
+        df_usan_all = pd.read_csv(self.usan, header=None, sep='\n')
+        df_usan_all = df_usan_all[0].str.split(',', expand=True)
+        headers = list(df_usan_all.iloc[0].fillna("rename")) 
+        headers = [i.replace('\"', "") for i in headers]
+        print(headers)
+        #temporarily renaming empty the empty columns
+        df_usan_all.columns = ['name', 'stem', 'definition', 'example', '1', '2', '3', '4', '5', '6']
+        df_usan_all.drop(index=0, inplace=True)
+        df_usan = df_usan_all.loc[~df_usan_all['name'].str.contains("subgroup:",regex=False)]
+        df_usan = df_usan.loc[~df_usan['name'].str.contains("subgroups:",regex=False)]
+        df_usan['name'] = df_usan['name'].replace("", np.NaN )
+        df_usan['name'] = df_usan['name'].fillna(method='ffill')
+        df_usan['definition'] = df_usan['definition'].str.strip(' " " ')
+        df_usan = df_usan.fillna("")
+        df_usan['example_all'] = df_usan['definition'] + "," + df_usan['example'] + ","  + df_usan['1'] + "," + df_usan['2'] + "," + df_usan['3'] + "," + df_usan['4'] + "," + df_usan['5'] + "," + df_usan['6'] 
+        df_usan['example_all'] = df_usan['example_all'].replace('\"', '')
+        df_usan.drop(columns=['example', '1', '2', '3', '4', '5', '6'], inplace=True)
+        print(df_usan.head())
+        return df_usan
+
+    def make_task2_ouput(self):
+        df_usan = self.match_drugs_to_usan_descriptions()
+        print(df_usan.head())
+        usan_dict = dict(zip(df_usan.name, df_usan.definition))
+        #print(usan_dict)
+        output_list_usan = []
+        df_trials = self.match_trials_with_drugs()
+        print(df_trials.head())
+        for drug in list(df_trials['drugs']):
+            drug_usan = {}
+            usan_codes = []
+            drug_usan['drug'] = drug
+            for k, v in usan_dict.items():
+                usandict = {}
+                if drug.endswith(k):            
+                    #print("k ", k)
+                    usandict['description'] = v
+                    usan_codes.append(usandict)
+                    #print(usan_codes)
+            if len(usan_codes) > 0:
+                drug_usan['usan_codes'] = usan_codes
+                output_list_usan.append(drug_usan)
+        with open('task2.json', 'w') as t:
+            json.dump(output_list_usan, t)
+        return output_list_usan
+
 
 
 if __name__ == "__main__":
     print("running")
     test = ClinicalTrials()
     test.match_trials_with_drugs()
+    test.make_task2_ouput()
