@@ -33,7 +33,7 @@ class ClinicalTrialsTest(unittest.TestCase):
         df = self.clinicaltrials.clean_df_trials()
         data_sample = df.intervention_type.sample(n=1).reset_index()
         data_received = data_sample['intervention_type']
-        print(data_received)
+        #print(data_received)
         self.assertEqual(data_expected, data_received.any())
 
     @unittest.skip("WIP")    

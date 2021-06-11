@@ -10,7 +10,8 @@ class ClinicalTrials:
      Choose method named after task to get the desired output.
      """
     def __init__(self, drugs_file="drugs.csv", 
-    trials_file="clinical_trials_2015.jsonl", usan_file="usan_stems.csv"):
+                trials_file="clinical_trials_2015.jsonl", 
+                usan_file="usan_stems.csv"):
         self.drugs = drugs_file
         self.trials = trials_file
         self.usan = usan_file
@@ -19,12 +20,12 @@ class ClinicalTrials:
         df = pd.read_csv(self.drugs)
         df['alternatives'] = df['itemLabel'] + "|" + df['altLabel_list'] 
         df['alternatives'] = df['alternatives'].str.lower().str.split('|')
-        print(df.head())
+        #print(df.head())
         return df
 
     def prepare_trials_file(self):
         df = pd.read_json(self.trials, lines=True)
-        print(df.head())
+        print("reading in trials json file")
         return df
 
     def select_only_drug_trials(self):
@@ -33,6 +34,7 @@ class ClinicalTrials:
         This can easily be changed with the following olumn if required."""
         df = self.prepare_trials_file()
         df_drug_trials = df[df['intervention_type'] == "Drug"]
+        print("selecting drug trials only")
         return df_drug_trials
 
     def clean_df_trials(self):
@@ -46,6 +48,35 @@ class ClinicalTrials:
         df_drug_trials['matches'] = df_drug_trials['matches'].str.lower().str.split(',')
         return df_drug_trials
 
+    def _match_drugs(self, matches, df):
+        """iterates over the full list of drugs available in drugs.csv, and
+        cleaned using regex and string replace methods. Will return the first
+        value of the list, as this is the value from 'itemLabel' in drugs.csv """
+        print("matching drugs")
+        drugs_list = list(df['alternatives'])
+        match = ""
+        for item in matches:
+            for sublist in drugs_list:
+                if item not in sublist:
+                    continue
+                else:
+                    match += sublist[0]
+                    continue
+        return match
+
+    def match_trials_with_drugs(self,):
+        df = self.clean_df_trials()
+        df_drugs = self.prepare_drugs_file()
+        df['drugs'] = df['matches'].apply(self._match_drugs, df=df_drugs)
+        df = df[df['drugs'] != ""]
+        df_output = df[['nct_id', 'drugs']]
+        output_dict_nct = dict(zip(df_output.nct_id, df_output.drugs))
+        with open("task1.json", "w") as outfile: 
+            json.dump(output_dict_nct, outfile)
+        return output_dict_nct
+
 
 if __name__ == "__main__":
     print("running")
+    test = ClinicalTrials()
+    test.match_trials_with_drugs()
