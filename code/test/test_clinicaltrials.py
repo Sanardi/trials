@@ -30,10 +30,11 @@ class ClinicalTrialsTest(unittest.TestCase):
 
     def test_clean_df_trials(self):
         data_expected = 'Drug'
-        df = self.test_clean_df_trials()
+        df = self.clinicaltrials.clean_df_trials()
         data_sample = df.intervention_type.sample(n=1).reset_index()
         data_received = data_sample['intervention_type']
-        self.assertEqual(data_expected, data_received)
+        print(data_received)
+        self.assertEqual(data_expected, data_received.any())
 
     @unittest.skip("WIP")    
     def test_is_consistent(self):

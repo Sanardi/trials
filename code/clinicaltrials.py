@@ -41,7 +41,7 @@ class ClinicalTrials:
         df_drug_trials['matches'] = df_drug_trials['intervention_name']
         words_to_remove = ["and", "intravenous", "or", "+", "-", "/", r"\(.*\)"]
         for item in words_to_remove:
-            df_drug_trials['matches'] = df_drug_trials['matches'].str.replace(item,"", regex = True)
+            df_drug_trials['matches'] = df_drug_trials['matches'].str.replace(item,"", regex=False)
 
         df_drug_trials['matches'] = df_drug_trials['matches'].str.lower().str.split(',')
         return df_drug_trials
