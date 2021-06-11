@@ -41,9 +41,9 @@ class ClinicalTrials:
         df_drug_trials = self.select_only_drug_trials()
         df_drug_trials['intervention_name'] = df_drug_trials['intervention_name'].str.lower()
         df_drug_trials['matches'] = df_drug_trials['intervention_name']
-        words_to_remove = ["and", "intravenous", "or", "+", "-", "/", r"\(.*\)"]
+        words_to_remove = ["and", "intravenous", "+", "- ", "/", r"\(.*\)", "®", " or"]
         for item in words_to_remove:
-            df_drug_trials['matches'] = df_drug_trials['matches'].str.replace(item,"", regex=False)
+            df_drug_trials['matches'] = df_drug_trials['matches'].str.replace(item,",", regex=False)
 
         df_drug_trials['matches'] = df_drug_trials['matches'].str.lower().str.split(',')
         return df_drug_trials
@@ -70,10 +70,12 @@ class ClinicalTrials:
         df['drugs'] = df['matches'].apply(self._match_drugs, df=df_drugs)
         df = df[df['drugs'] != ""]
         df_output = df[['nct_id', 'drugs']]
-        output_dict_nct = dict(zip(df_output.nct_id, df_output.drugs))
+        json_output = df_output.to_json(orient="records")
+        parsed = json.loads(json_output)
+        #json_output = json.dump(parsed, "task1.json") 
         with open("task1.json", "w") as outfile: 
-            json.dump(output_dict_nct, outfile)
-        return output_dict_nct
+            json.dump(parsed, outfile)
+        return parsed
 
 
 if __name__ == "__main__":

@@ -36,25 +36,11 @@ class ClinicalTrialsTest(unittest.TestCase):
         #print(data_received)
         self.assertEqual(data_expected, data_received.any())
 
-    @unittest.skip("WIP")    
-    def test_is_consistent(self):
-        self.phonebook.add("Bob", "12345")
-        self.phonebook.add("Anna", "012345")
-        self.assertTrue(self.phonebook.is_consistent())
     @unittest.skip("WIP")
-    def test_inconsistent_with_duplicate_entries(self):
-        self.phonebook.add("Bob", "12345")
-        self.phonebook.add("Sue", "12345")
-        self.assertFalse(self.phonebook.is_consistent())
-    @unittest.skip("WIP")
-    def test_inconsistent_with_different_prefixes(self):
-        self.phonebook.add("Bob", "12345")
-        self.phonebook.add("Sue", "123")
-        self.assertFalse(self.phonebook.is_consistent())
-    @unittest.skip("WIP")
-    def test_phonebook_adds_names_and_numbers(self):
-        self.phonebook.add("Richard", "09158")
-        self.assertIn("Richard", self.phonebook.get_names())
-        self.assertIn("09158", self.phonebook.get_numbers())
-
-
+    def test_match_trials_with_drugs(self):
+        """I did think of writing a test to find the trial NCT01969578 from the instructions,
+        but this particular trial was not in my dataset, plz. see jupyter notebook"""
+        #data_expected = {"nct_id": "NCT01969578", "drugs": ["bicalutamide", "triptorelin"]}
+        json_output = self.clinicaltrials.match_trials_with_drugs()
+        print(json_output)
+        
