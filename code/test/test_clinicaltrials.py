@@ -54,6 +54,7 @@ class ClinicalTrialsTest(unittest.TestCase):
         
 
     def test_task4_len_half_of_task3(self):
+        """Since task4 collects 2 descriptions it should overall have half task3's entries"""
         task3_output = self.clinicaltrials.make_task3_output()
         task3_output_len = len(task3_output)
         task4_output = self.clinicaltrials.make_task4_output()
