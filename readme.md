@@ -1,6 +1,6 @@
  👋
 Python Class that performs various data manipulation tasks to match drug descriptions to clinial trials.
-Returna JSON files as output, heavily relies on pandas as well as the python built in methods.
+Returns JSON files as output, heavily relies on pandas as well as the python built in methods.
 
 Helper functions within the Class have been added, so the dataframes can be accessible for further data tasks.
 
