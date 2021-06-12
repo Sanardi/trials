@@ -71,10 +71,18 @@ class ClinicalTrials:
         df = df[df['drugs'] != ""]
         return df
 
-    def output_task1(self):
+    def make_task1_df(self):
         #outputs the requested json
         df = self.match_trials_with_drugs()
         df_output = df[['nct_id', 'drugs']]
+        return df_output
+
+    def make_ntc_dict(self):
+        df_output = self.make_task1_df()
+        return dict(zip(df_output.nct_id, df_output.drugs))
+
+    def output_task1(self):
+        df_output = self.make_task1_df()
         json_output = df_output.to_json(orient="records")
         parsed = json.loads(json_output)
         with open("task1.json", "w") as outfile: 
@@ -115,9 +123,9 @@ class ClinicalTrials:
             usan_codes = []
             drug_usan['drug'] = drug
             for k, v in usan_dict.items():
-                usandict = {}
+                
                 if drug.endswith(k):            
-                    #print("k ", k)
+                    usandict = {}
                     usandict['description'] = v
                     usan_codes.append(usandict)
                     #print(usan_codes)
@@ -128,10 +136,47 @@ class ClinicalTrials:
             json.dump(output_list_usan, t)
         return output_list_usan
 
+    def make_task3_output(self):
+        output_list_usan = self.make_task2_ouput()
+        output_dict_nct = self.make_ntc_dict()
+        output_list_3 = []
+        for drug in output_list_usan:
+            drug_description = {}
+            trials = []
+            #print(drug['drug'])
+            #print(drug["usan_codes"][0]["description"])
+            for k,v in output_dict_nct.items():
+                #print(k, v)
+                if v == drug['drug']:
+                    #print("YES")                
+                    trials.append(k)        
+            if len(trials) > 0:
+                drug_description['description'] = drug["usan_codes"][0]["description"]
+                drug_description['trials'] = trials
+                output_list_3.append(drug_description)
+        with open('task3.json', 'w') as t:
+            json.dump(output_list_3, t)
+        return output_list_3
 
+    def make_task4_output(self):
+        trial_counts_list= []
+        task3_list = self.make_task3_output()
+        for i in range(0,len(task3_list)-1,2):
+            trial_counts_dict = {}
+            trial_counts_dict["description1"] = task3_list[i]["description"]
+            trial_counts_dict["description2"] = task3_list[i+1]["description"]
+            trial_counts_dict["trial_count"] = len(task3_list[i]["trials"]) + len(task3_list[i+1]["trials"])
+            print(trial_counts_dict)
+            trial_counts_list.append(trial_counts_dict)
+        with open('task4.json', 'w') as t:
+            json.dump(trial_counts_list, t)
+        return trial_counts_list
+
+    
 
 if __name__ == "__main__":
     print("running")
     test = ClinicalTrials()
     test.match_trials_with_drugs()
     test.make_task2_ouput()
+    test.make_task3_output()

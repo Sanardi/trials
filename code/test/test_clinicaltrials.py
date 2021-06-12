@@ -2,7 +2,7 @@ import unittest
 from clinicaltrials import ClinicalTrials
 
 class ClinicalTrialsTest(unittest.TestCase):
-    """Test Class for testing Clinical Trials, 
+    """Test Class for testing ClinicalTrials, 
     currently assumes you take the files that are in the directory by checking first entry.
     This could be extended to test different files if desired"""
        
@@ -43,4 +43,20 @@ class ClinicalTrialsTest(unittest.TestCase):
         #data_expected = {"nct_id": "NCT01969578", "drugs": ["bicalutamide", "triptorelin"]}
         json_output = self.clinicaltrials.match_trials_with_drugs()
         print(json_output)
+
+    def test_make_ntc_dict(self):
+        test = self.clinicaltrials.make_ntc_dict()
+        print(test)
+
+        expected_dict = {'drug': 'fluorouracil',
+                        'usan_codes': [{'description': 'uracil type antineoplastics'},
+                        {'description': 'uracil derivatives used as thyroid antagonists and as antineoplastics'}]},
         
+
+    def test_task4_len_half_of_task3(self):
+        task3_output = self.clinicaltrials.make_task3_output()
+        task3_output_len = len(task3_output)
+        task4_output = self.clinicaltrials.make_task4_output()
+        task4_output_len = len(task4_output)
+        assumption = task3_output_len / task4_output_len == 2 or (task3_output_len + 1) / task4_output_len == 2
+        self.assertTrue(assumption)
