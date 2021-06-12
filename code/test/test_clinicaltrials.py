@@ -33,7 +33,6 @@ class ClinicalTrialsTest(unittest.TestCase):
         df = self.clinicaltrials.clean_df_trials()
         data_sample = df.intervention_type.sample(n=1).reset_index()
         data_received = data_sample['intervention_type']
-        #print(data_received)
         self.assertEqual(data_expected, data_received.any())
 
     @unittest.skip("WIP")
@@ -46,7 +45,6 @@ class ClinicalTrialsTest(unittest.TestCase):
 
     def test_make_ntc_dict(self):
         test = self.clinicaltrials.make_ntc_dict()
-        print(test)
         data_expected = "NCT01232647"
         self.assertIn(data_expected, test)
         
