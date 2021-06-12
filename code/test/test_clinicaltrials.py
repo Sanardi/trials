@@ -47,10 +47,8 @@ class ClinicalTrialsTest(unittest.TestCase):
     def test_make_ntc_dict(self):
         test = self.clinicaltrials.make_ntc_dict()
         print(test)
-
-        expected_dict = {'drug': 'fluorouracil',
-                        'usan_codes': [{'description': 'uracil type antineoplastics'},
-                        {'description': 'uracil derivatives used as thyroid antagonists and as antineoplastics'}]},
+        data_expected = "NCT01232647"
+        self.assertIn(data_expected, test)
         
 
     def test_task4_len_half_of_task3(self):
