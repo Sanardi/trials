@@ -2,6 +2,7 @@
 import numpy as np
 import pandas as pd
 import json
+from heapq import nlargest
 
 
 class ClinicalTrials:
@@ -140,6 +141,11 @@ class ClinicalTrials:
         output_list_usan = self.make_task2_ouput()
         output_dict_nct = self.make_ntc_dict()
         output_list_3 = []
+        # this will only return a set, 
+        # thus reduce the duplicate descriptions
+        #  which come from multiple drugs having the same descriptions.
+        outputset = set()
+        output_list_3b = []
         for drug in output_list_usan:
             drug_description = {}
             trials = []
@@ -154,22 +160,32 @@ class ClinicalTrials:
                 drug_description['description'] = drug["usan_codes"][0]["description"]
                 drug_description['trials'] = trials
                 output_list_3.append(drug_description)
+                outputset.add(json.dumps(drug_description, sort_keys=True))
         with open('task3.json', 'w') as t:
             json.dump(output_list_3, t)
-        return output_list_3
+        for p in outputset:
+            output_list_3b.append(json.loads(p))
+        with open('task3b.json', 'w') as t:
+            json.dump(output_list_3b, t)
+        #I am returning the de-duplicated list here, should this not be 
+        #desired, please change to output_list_3. I left both because I 
+        #did not know which is preferred.
+        return output_list_3b
 
     def make_task4_output(self):
         trial_counts_list= []
         task3_list = self.make_task3_output()
-        for i in range(0,len(task3_list)-1,2):
+        for i in range(0, len(task3_list)-1, 2):
             trial_counts_dict = {}
             trial_counts_dict["description1"] = task3_list[i]["description"]
             trial_counts_dict["description2"] = task3_list[i+1]["description"]
             trial_counts_dict["trial_count"] = len(task3_list[i]["trials"]) + len(task3_list[i+1]["trials"])
-            print(trial_counts_dict)
+            #print(trial_counts_dict)
             trial_counts_list.append(trial_counts_dict)
+        sortedlist = sorted(trial_counts_list, key=lambda k: k['trial_count'], reverse=True)
         with open('task4.json', 'w') as t:
-            json.dump(trial_counts_list, t)
+            json.dump(sortedlist, t)
+            #json.dump(trial_counts_list, t)
         return trial_counts_list
 
     
@@ -180,3 +196,4 @@ if __name__ == "__main__":
     test.match_trials_with_drugs()
     test.make_task2_ouput()
     test.make_task3_output()
+    test.make_task4_output()
