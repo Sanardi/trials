@@ -55,5 +55,5 @@ class ClinicalTrialsTest(unittest.TestCase):
         task3_output_len = len(task3_output)
         task4_output = self.clinicaltrials.make_task4_output()
         task4_output_len = len(task4_output)
-        assumption = task3_output_len / task4_output_len == 2 or (task3_output_len + 1) / task4_output_len == 2
+        assumption = task3_output_len / task4_output_len == 2 or (task3_output_len - 1) / task4_output_len == 2
         self.assertTrue(assumption)
