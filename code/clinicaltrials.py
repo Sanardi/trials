@@ -61,6 +61,7 @@ class ClinicalTrials:
                 if item not in sublist:
                     continue
                 else:
+                    match += " "
                     match += sublist[0]
                     continue
         return match
